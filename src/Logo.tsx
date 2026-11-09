@@ -1,9 +1,9 @@
-// Logos officiels SPL (fichiers dans public/).
-// `full` : logo complet (Logo.png), utilisé dans le hero.
-// Sinon : logo de la barre du haut et du pied de page (Logo1.png).
+// Logos officiels SPL (fichiers dans public/, noms en minuscules).
+// `full` : logo complet (logo.png), utilisé dans le hero.
+// Sinon : logo de la barre du haut et du pied de page (logo1.png).
 const base = import.meta.env.BASE_URL
-const fullSrc = `${base}Logo.png`
-const barSrc = `${base}Logo1.png`
+const fullSrc = `${base}logo.png`
+const barSrc = `${base}logo1.png`
 
 type Props = { full?: boolean; animated?: boolean; className?: string }
 
