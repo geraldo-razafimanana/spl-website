@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import Logo from './Logo'
 import Legal from './Legal'
 import { nav, services, steps, cats, works, why, projectTypes } from './data'
+import { localCheck, domainReceivesMail } from './emailCheck'
 
 function Reveal({ children, className = '' }: { children: ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null)
@@ -175,17 +176,22 @@ function Contact() {
   const [st, setSt] = useState<'idle' | 'loading' | 'ok' | 'fail'>('idle')
   const endpoint = import.meta.env.VITE_FORM_ENDPOINT as string | undefined
   const set = (k: keyof F) => (e: { target: { value: string } }) => setV({ ...v, [k]: e.target.value })
-  async function submit(e: FormEvent) {
+    async function submit(e: FormEvent) {
     e.preventDefault()
     const x: typeof err = {}
     if (v.nom.trim().length < 2) x.nom = 'Indiquez votre nom complet.'
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) x.email = 'Indiquez une adresse e-mail valide.'
+    else { const m = localCheck(v.email); if (m) x.email = m }
     if (v.tel && !/^[+\d\s().-]{6,20}$/.test(v.tel)) x.tel = 'Numéro de téléphone invalide.'
     if (!v.type) x.type = 'Choisissez un type de projet.'
     if (v.msg.trim().length < 20) x.msg = 'Décrivez votre besoin en quelques phrases (20 caractères minimum).'
     setErr(x); if (Object.keys(x).length) return
     if (!endpoint) { setSt('fail'); return }
     setSt('loading')
+    if (!(await domainReceivesMail(v.email.split('@')[1]))) {
+      setErr({ email: 'Le domaine de cette adresse ne reçoit pas d’e-mails. Vérifiez la saisie.' })
+      setSt('idle'); return
+    }
     try {
       const r = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify({ nom: v.nom, email: v.email, telephone: v.tel, entreprise: v.ent, type_projet: v.type, message: v.msg }) })
       if (!r.ok) throw new Error(); setSt('ok')
