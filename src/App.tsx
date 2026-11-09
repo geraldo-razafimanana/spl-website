@@ -254,7 +254,7 @@ function Cta() {
 }
 export default function App() {
   return (
-    <BrowserRouter><Route_ /><Header />
+    <BrowserRouter basename={import.meta.env.BASE_URL}><Route_ /><Header />
       <main><Routes>
         <Route path="/" element={<><Hero /><Services /><Cta /></>} />
         <Route path="/a-propos" element={<Page><About /><Why /></Page>} />
